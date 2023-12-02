@@ -28,9 +28,11 @@ int main()
     }
 
     int sum = 0;
+    int powerSum = 0;
     std::unordered_map<std::string, int> maxCounts{{"red", 12}, {"blue", 14}, {"green", 13}};
     std::string line;
 
+    // Each game
     while (std::getline(myfile, line))
     {
         auto gamePos = line.find("Game");
@@ -42,11 +44,17 @@ int main()
         std::vector<std::string> sets = splitString(line.substr(colonPos + 1), ';');
 
         bool gameValid = true;
+        int power = 1;
+
+        // Keep track of maximum counts for each color
+        std::unordered_map<std::string, int> gameMaxColorCount{{"red", 0}, {"blue", 0}, {"green", 0}};
+        // Each set
         for (const auto &set : sets)
         {
             std::vector<std::string> colors = splitString(set, ',');
             std::unordered_map<std::string, int> colorCounts;
 
+            // Each color
             for (const auto &color : colors)
             {
                 auto firstDigitPos = color.find_first_of("0123456789");
@@ -55,6 +63,7 @@ int main()
                 std::string colorName = color.substr(lastDigitPos + 1);
                 std::erase(colorName, ' ');
                 colorCounts[colorName] += colorCount;
+                gameMaxColorCount[colorName] = std::max(gameMaxColorCount[colorName], colorCounts[colorName]);
             }
 
             for (const auto &[colorName, count] : colorCounts)
@@ -65,17 +74,21 @@ int main()
                     break;
                 }
             }
-
-            if (!gameValid)
-                break;
         }
 
+        for (const auto &[colorName, count] : gameMaxColorCount)
+        {
+            power *= count;
+        }
+
+        powerSum += power;
         if (gameValid)
         {
             sum += std::stoi(gameId);
         }
     }
 
-    std::cout << "Result: " << sum << "\n";
+    std::cout << "Result Sum: " << sum << "\n";
+    std::cout << "Result Power Sum: " << powerSum << "\n";
     return 0;
 }
