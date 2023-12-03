@@ -4,6 +4,53 @@
 #include <vector>
 #include <set>
 #include <queue>
+#include <map>
+
+// Alias for range
+using Range = std::pair<std::pair<int, int>, std::pair<int, int>>;
+
+// Expand a range
+// Return start and end coordinates of range
+Range expandRange(const std::vector<std::vector<char>> &gears, std::pair<int, int> digit)
+{
+    int row = digit.first;
+    int col = digit.second;
+
+    // Go left
+    while (col - 1 >= 0 && std::isdigit(gears[row][col - 1]))
+    {
+        col--;
+    }
+
+    // Left is now a symbol or out of bounds
+    // Go right
+    int right_col = digit.second;
+    while (right_col + 1 < gears[0].size() && std::isdigit(gears[row][right_col + 1]))
+    {
+        right_col++;
+    }
+
+    // Right is now a symbol or out of bounds
+    // Add to range set
+    return {{row, col}, {row, right_col}};
+}
+
+int getNumberFromRange(Range range, std::vector<std::vector<char>> &gears)
+{
+    int row = range.first.first;
+    int col = range.first.second;
+    int right_col = range.second.second;
+
+    // construct number from digits
+    std::string number = "";
+    while (col <= right_col)
+    {
+        number += gears[row][col];
+        col++;
+    }
+
+    return std::stoi(number);
+}
 
 int main()
 {
@@ -13,7 +60,8 @@ int main()
         throw std::runtime_error("Unable to open file");
     }
 
-    int sum = 0;
+    int sum = 0;        // part 1
+    int gear_count = 0; // part 2
     std::string line;
     std::vector<std::vector<char>> gears;
 
@@ -53,9 +101,14 @@ int main()
      * then sum all the numbers in the set given by range
      */
 
-    // Range set
-    std::set<std::pair<std::pair<int, int>, std::pair<int, int>>> range_set;
-    std::set<std::pair<int, int>> digit_set;
+    std::set<Range> range_set;
+    std::map<std::pair<int, int>, std::set<Range>> gear_map;
+
+    /** PART 2
+     * Gear map has all neghbors of a *
+     * If a * has more EXACTLY 2 neighbor, then it is a gear
+     * In the end, go thorugh all gears and multiply the numbers and return the sum
+     */
 
     // Get reachable digits
     while (!q.empty())
@@ -78,58 +131,44 @@ int main()
 
             if (std::isdigit(gears[new_row][new_col]))
             {
-                // Add to digit set
-                digit_set.insert({new_row, new_col});
+                // Expand and add to range_set
+                Range range = expandRange(gears, {new_row, new_col});
+                range_set.insert(range);
+
+                if (gears[current.first][current.second] == '*')
+                {
+                    gear_map[{current.first, current.second}].insert(range);
+                }
             }
         }
     }
 
-    // Now we have a set of all digit locations reachable from symbols
-    // Now we need to expand the ranges
-    for (auto digit : digit_set)
-    {
-        int row = digit.first;
-        int col = digit.second;
-
-        // Go left
-        while (col - 1 >= 0 && std::isdigit(gears[row][col - 1]))
-        {
-            col--;
-        }
-
-        // Left is now a symbol or out of bounds
-        // Go right
-        int right_col = digit.second;
-        while (right_col + 1 < gears[0].size() && std::isdigit(gears[row][right_col + 1]))
-        {
-            right_col++;
-        }
-
-        // Right is now a symbol or out of bounds
-        // Add to range set
-        range_set.insert({{row, col}, {row, right_col}});
-    }
-
+    // This is for part 1
     // Now we have a set of ranges
     // Sum all the numbers given by the digits in the ranges
     for (auto range : range_set)
     {
-        int row = range.first.first;
-        int col = range.first.second;
-        int right_col = range.second.second;
+        sum += getNumberFromRange(range, gears);
+    }
 
-        // construct number from digits
-        std::string number = "";
-        while (col <= right_col)
+    // Part 2
+    // Go through all the gears and multiply the numbers
+    for (auto gear : gear_map)
+    {
+        if (gear.second.size() == 2)
         {
-            number += gears[row][col];
-            col++;
+            int gear_product = 1;
+            // Get the range
+            for (auto range : gear.second)
+            {
+                gear_product *= getNumberFromRange(range, gears);
+            }
+            gear_count += gear_product;
         }
-
-        sum += std::stoi(number);
     }
 
     std::cout << "Sum: " << sum << std::endl;
+    std::cout << "Gear count: " << gear_count << std::endl;
 
     return 0;
 }
