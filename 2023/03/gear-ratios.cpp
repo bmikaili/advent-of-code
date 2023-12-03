@@ -119,7 +119,7 @@ int main()
         q.pop();
 
         // Check if neighbor is a digit, 8 directions
-        std::array<std::vector<int>, 8> directions = {{{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}}};
+        std::array<std::array<int, 2>, 8> directions = {{{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}}};
 
         for (const auto &dir : directions)
         {
