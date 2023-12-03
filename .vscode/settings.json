@@ -49,6 +49,7 @@
     "ratio": "cpp",
     "variant": "cpp",
     "algorithm": "cpp",
-    "unordered_map": "cpp"
+    "unordered_map": "cpp",
+    "__tree": "cpp"
   }
 }

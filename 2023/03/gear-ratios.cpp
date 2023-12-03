@@ -5,6 +5,8 @@
 #include <set>
 #include <queue>
 #include <map>
+#include <array>
+#include <optional>
 
 // Alias for range
 using Range = std::pair<std::pair<int, int>, std::pair<int, int>>;
@@ -57,7 +59,8 @@ int main()
     std::ifstream myfile("input.txt");
     if (!myfile)
     {
-        throw std::runtime_error("Unable to open file");
+        std::cerr << "Unable to open file" << std::endl;
+        return 1;
     }
 
     int sum = 0;        // part 1
@@ -72,11 +75,10 @@ int main()
     int row = 0;
     while (std::getline(myfile, line))
     {
-        int col = 0;
-        std::istringstream iss(line);
+        std::string_view sv(line);
         std::vector<char> gear;
-        char gear_type;
-        while (iss >> gear_type)
+        int col = 0;
+        for (char gear_type : sv)
         {
             gear.push_back(gear_type);
             if (gear_type != '.' && !std::isdigit(gear_type))
@@ -117,9 +119,9 @@ int main()
         q.pop();
 
         // Check if neighbor is a digit, 8 directions
-        std::vector<std::vector<int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+        std::array<std::vector<int>, 8> directions = {{{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}}};
 
-        for (auto dir : directions)
+        for (const auto &dir : directions)
         {
             int new_row = current.first + dir[0];
             int new_col = current.second + dir[1];
@@ -146,20 +148,20 @@ int main()
     // This is for part 1
     // Now we have a set of ranges
     // Sum all the numbers given by the digits in the ranges
-    for (auto range : range_set)
+    for (const auto &range : range_set)
     {
         sum += getNumberFromRange(range, gears);
     }
 
     // Part 2
     // Go through all the gears and multiply the numbers
-    for (auto gear : gear_map)
+    for (const auto &gear : gear_map)
     {
         if (gear.second.size() == 2)
         {
             int gear_product = 1;
             // Get the range
-            for (auto range : gear.second)
+            for (const auto &range : gear.second)
             {
                 gear_product *= getNumberFromRange(range, gears);
             }
