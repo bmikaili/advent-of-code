@@ -50,6 +50,9 @@
     "variant": "cpp",
     "algorithm": "cpp",
     "unordered_map": "cpp",
-    "__tree": "cpp"
-  }
+    "__tree": "cpp",
+    "array": "cpp",
+    "bit": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "enabled"
 }
