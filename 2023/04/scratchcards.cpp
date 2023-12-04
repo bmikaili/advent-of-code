@@ -4,7 +4,8 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
-#include <cmath> // Add missing import for std::pow
+#include <cmath>
+#include <unordered_map>
 
 std::set<int> split_into_digits(const std::string &str, char delim)
 {
@@ -33,6 +34,7 @@ int main()
     }
 
     int points = 0;
+    std::unordered_map<int, int> card_copy_count;
 
     /**
      * In each line
@@ -44,6 +46,8 @@ int main()
      */
     std::string line;
 
+    int card_id = 0;
+    int copy_count_sum = 0;
     while (std::getline(myfile, line))
     {
         // Get rid of the Card N: part and the space after it do not use string view
@@ -75,10 +79,22 @@ int main()
                               std::back_inserter(intersection));
 
         if (intersection.size() > 0)
+        {
             points += std::pow(2, intersection.size() - 1);
+        }
+
+        copy_count_sum += card_copy_count[card_id] + 1;
+
+        // all intersection.size() cards after this one get their copy count increased by 1
+        for (int i = card_id + 1; i <= card_id + intersection.size(); i++)
+        {
+            card_copy_count[i] += card_copy_count[card_id] + 1;
+        }
+        card_id++;
     }
 
     std::cout << "Result: " << points << std::endl;
+    std::cout << "Copy count sum: " << copy_count_sum << std::endl;
 
     return 0;
 }
